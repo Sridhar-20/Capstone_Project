@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: order-mongodb-pvc
+  namespace: cake-delight
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-mongodb
+  namespace: cake-delight
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-mongodb
+  template:
+    metadata:
+      labels:
+        app: order-mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:8
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: order-mongodb-storage
+              mountPath: /data/db
+      volumes:
+        - name: order-mongodb-storage
+          persistentVolumeClaim:
+            claimName: order-mongodb-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-mongodb
+  namespace: cake-delight
+spec:
+  selector:
+    app: order-mongodb
+  ports:
+    - port: 27017
+      targetPort: 27017
