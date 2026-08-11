@@ -1,5 +1,32 @@
 services:
 
+  # ==========================================================
+  # API GATEWAY
+  # ==========================================================
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      CATALOG_SERVICE_URL: http://catalog-service:5001/api/catalog
+      ORDER_SERVICE_URL: http://order-service:5002/api/orders
+      NOTIFICATION_SERVICE_URL: http://notification-service:5003/api/notifications
+      RATING_SERVICE_URL: http://rating-service:5004/api/ratings
+      NODE_ENV: production
+    depends_on:
+      - catalog-service
+      - order-service
+      - notification-service
+      - rating-service
+    restart: unless-stopped
+
+
+  # ==========================================================
+  # CATALOG SERVICE
+  # ==========================================================
+
   catalog-service:
     build: ./catalog-service
     ports:
@@ -12,6 +39,11 @@ services:
       - catalog-mongodb
     restart: unless-stopped
 
+
+  # ==========================================================
+  # ORDER SERVICE
+  # ==========================================================
+
   order-service:
     build: ./order-service
     ports:
@@ -22,11 +54,17 @@ services:
       CATALOG_SERVICE_URL: http://catalog-service:5001
       RABBITMQ_URL: amqp://rabbitmq:5672
       EVENT_EXCHANGE: cake_delight_events
+      NODE_ENV: production
     depends_on:
       - order-mongodb
       - catalog-service
       - rabbitmq
     restart: unless-stopped
+
+
+  # ==========================================================
+  # NOTIFICATION SERVICE
+  # ==========================================================
 
   notification-service:
     build: ./notification-service
@@ -38,10 +76,33 @@ services:
       RABBITMQ_URL: amqp://rabbitmq:5672
       EVENT_EXCHANGE: cake_delight_events
       NOTIFICATION_QUEUE: notification_service_queue
+      NODE_ENV: production
     depends_on:
       - notification-mongodb
       - rabbitmq
     restart: unless-stopped
+
+
+  # ==========================================================
+  # RATING SERVICE
+  # ==========================================================
+
+  rating-service:
+    build: ./rating-service
+    ports:
+      - "5004:5004"
+    environment:
+      PORT: 5004
+      MONGODB_URI: mongodb://rating-mongodb:27017/rating_db
+      NODE_ENV: production
+    depends_on:
+      - rating-mongodb
+    restart: unless-stopped
+
+
+  # ==========================================================
+  # RABBITMQ
+  # ==========================================================
 
   rabbitmq:
     image: rabbitmq:4-management
@@ -50,11 +111,21 @@ services:
       - "15672:15672"
     restart: unless-stopped
 
+
+  # ==========================================================
+  # CATALOG MONGODB
+  # ==========================================================
+
   catalog-mongodb:
     image: mongo:8
     volumes:
       - catalog_mongodb_data:/data/db
     restart: unless-stopped
+
+
+  # ==========================================================
+  # ORDER MONGODB
+  # ==========================================================
 
   order-mongodb:
     image: mongo:8
@@ -62,13 +133,35 @@ services:
       - order_mongodb_data:/data/db
     restart: unless-stopped
 
+
+  # ==========================================================
+  # NOTIFICATION MONGODB
+  # ==========================================================
+
   notification-mongodb:
     image: mongo:8
     volumes:
       - notification_mongodb_data:/data/db
     restart: unless-stopped
 
+
+  # ==========================================================
+  # RATING MONGODB
+  # ==========================================================
+
+  rating-mongodb:
+    image: mongo:8
+    volumes:
+      - rating_mongodb_data:/data/db
+    restart: unless-stopped
+
+
+# ============================================================
+# VOLUMES
+# ============================================================
+
 volumes:
   catalog_mongodb_data:
   order_mongodb_data:
   notification_mongodb_data:
+  rating_mongodb_data:
