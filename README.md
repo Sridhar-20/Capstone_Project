@@ -1,59 +1,59 @@
-**# 🎂 Cake Delight — Microservices Application**
+# 🎂 Cake Delight — Microservices Application
 
-Cake Delight is a **\*\*cloud-native microservices-based cake ordering application\*\*** built using Node.js, Express.js, MongoDB, RabbitMQ, Docker, and related technologies.
+Cake Delight is a **cloud-native microservices-based cake ordering application** built using Node.js, Express.js, MongoDB, RabbitMQ, Docker, and related technologies.
 
 The application is designed using a distributed microservices architecture where each service is responsible for a specific business capability.
 
 The system currently consists of:
 
-\- 🍰 Catalog Microservice
-\- 🛒 Order Microservice
-\- 🔔 Notification Microservice
-\- ⭐ Rating Microservice
-\- 🚪 API Gateway
-\- 🐇 RabbitMQ Message Broker
-\- 🍃 MongoDB
-\- 🐳 Docker / Docker Compose
+- 🍰 Catalog Microservice
+- 🛒 Order Microservice
+- 🔔 Notification Microservice
+- ⭐ Rating Microservice
+- 🚪 API Gateway
+- 🐇 RabbitMQ Message Broker
+- 🍃 MongoDB
+- 🐳 Docker / Docker Compose
 
 Each microservice can be developed, tested, and deployed independently while communicating with other services through REST APIs or asynchronous events.
 
-**---**
+---
 
-**# 📌 Table of Contents**
+# 📌 Table of Contents
 
-1\. [Project Overview]\(#-project-overview)
-2\. [Architecture]\(#-architecture)
-3\. [Microservices]\(#-microservices)
-4\. [Technology Stack]\(#-technology-stack)
-5\. [Service Ports]\(#-service-ports)
-6\. [Catalog Microservice]\(#-catalog-microservice)
-7\. [Order Microservice]\(#-order-microservice)
-8\. [Notification Microservice]\(#-notification-microservice)
-9\. [Rating Microservice]\(#-rating-microservice)
-10\. [API Gateway]\(#-api-gateway)
-11\. [RabbitMQ Event Architecture]\(#-rabbitmq-event-architecture)
-12\. [Complete Customer Workflow]\(#-complete-customer-workflow)
-13\. [Project Structure]\(#-project-structure)
-14\. [Database Architecture]\(#-database-architecture)
-15\. [API Gateway Routes]\(#-api-gateway-routes)
-16\. [Environment Configuration]\(#-environment-configuration)
-17\. [Running the Application Locally]\(#-running-the-application-locally)
-18\. [Running with Docker Compose]\(#-running-with-docker-compose)
-19\. [Swagger Documentation]\(#-swagger-documentation)
-20\. [Testing]\(#-testing)
-21\. [Error Handling]\(#-error-handling)
-22\. [Microservice Communication]\(#-microservice-communication)
-23\. [Future Enhancements]\(#-future-enhancements)
+1. [Project Overview](#-project-overview)
+2. [Architecture](#-architecture)
+3. [Microservices](#-microservices)
+4. [Technology Stack](#-technology-stack)
+5. [Service Ports](#-service-ports)
+6. [Catalog Microservice](#-catalog-microservice)
+7. [Order Microservice](#-order-microservice)
+8. [Notification Microservice](#-notification-microservice)
+9. [Rating Microservice](#-rating-microservice)
+10. [API Gateway](#-api-gateway)
+11. [RabbitMQ Event Architecture](#-rabbitmq-event-architecture)
+12. [Complete Customer Workflow](#-complete-customer-workflow)
+13. [Project Structure](#-project-structure)
+14. [Database Architecture](#-database-architecture)
+15. [API Gateway Routes](#-api-gateway-routes)
+16. [Environment Configuration](#-environment-configuration)
+17. [Running the Application Locally](#-running-the-application-locally)
+18. [Running with Docker Compose](#-running-with-docker-compose)
+19. [Swagger Documentation](#-swagger-documentation)
+20. [Testing](#-testing)
+21. [Error Handling](#-error-handling)
+22. [Microservice Communication](#-microservice-communication)
+23. [Future Enhancements](#-future-enhancements)
 
-**---**
+---
 
-**# 🎯 Project Overview**
+# 🎯 Project Overview
 
 Cake Delight allows customers to browse cakes, manage a shopping basket, checkout and create orders, receive order-related notifications, and submit ratings and reviews.
 
 The application is divided into independent microservices.
 
-\`\`\`text
+```text
                          Cake Delight
                               │
                               ▼
@@ -76,151 +76,130 @@ The application is divided into independent microservices.
              │                │
              ▼                ▼
           MongoDB          MongoDB
-\`\`\`
+```
 
 The API Gateway acts as the public entry point for client requests.
 
 The backend services remain responsible for their own business logic and data.
 
-**---**
+---
 
-**# 🏗️ Architecture**
+# 🏗️ Architecture
 
 The overall Cake Delight architecture is:
 
-\`\`\`text
-                           ┌──────────────────┐
-                           │      CLIENT      │
-                           │     Cake UI      │
-                           └────────┬─────────┘
-                                    │
-                                    ▼
-                           ┌──────────────────┐
-                           │   API GATEWAY    │
-                           │      :5000       │
-                           └────────┬─────────┘
-                                    │
-                ┌───────────────────┼────────────────────┐
-                │                   │                    │
-                ▼                   ▼                    ▼
-       ┌────────────────┐  ┌────────────────┐  ┌────────────────┐
-       │ Catalog Service│  │  Order Service │  │ Rating Service │
-       │     :5001      │  │     :5002      │  │     :5004      │
-       └───────┬────────┘  └───────┬────────┘  └───────┬────────┘
-               │                   │                   │
-               ▼                   │                   ▼
-          Catalog DB               │               Rating DB
-                                   │
-                                   │ Order Events
-                                   ▼
-                            ┌─────────────┐
-                            │  RabbitMQ   │
-                            │    Broker   │
-                            └──────┬──────┘
-                                   │
-                                   ▼
-                          ┌─────────────────────┐
-                          │ Notification Service│
-                          │        :5003        │
-                          └──────────┬──────────┘
-                                     │
-                                     ▼
-                               Notification DB
-\`\`\`
+```mermaid
+flowchart TD
+    C[CLIENT<br/>Cake UI] --> G[API Gateway<br/>:5000]
 
-**---**
+    G --> CAT[Catalog Service<br/>:5001]
+    G --> ORD[Order Service<br/>:5002]
+    G --> NOTIF[Notification Service<br/>:5003]
+    G --> RAT[Rating Service<br/>:5004]
 
-**# 🧩 Microservices**
+    CAT --> CATDB[(Catalog DB)]
+    ORD --> CAT
+    ORD --> ORDDB[(Order DB)]
+    RAT --> RATDB[(Rating DB)]
 
-**## 🍰 1. Catalog Microservice**
+    ORD -->|Order Events| MQ[RabbitMQ<br/>Broker]
+    MQ --> NOTIF
+    NOTIF --> NOTIFDB[(Notification DB)]
+```
 
-**\*\*Port:\*\*** \`5001\`
+---
+
+# 🧩 Microservices
+
+## 🍰 1. Catalog Microservice
+
+**Port:** `5001`
 
 The Catalog Service manages all cake-related information and inventory.
 
-**### Responsibilities**
+### Responsibilities
 
-\- Cake CRUD operations
-\- Cake details
-\- Cake categories
-\- Cake prices
-\- Cake stock
-\- Cake availability
-\- Search cakes by name
-\- Filter cakes by category
-\- Filter cakes by price range
-\- Pagination
-\- Sorting
-\- Stock management
+- Cake CRUD operations
+- Cake details
+- Cake categories
+- Cake prices
+- Cake stock
+- Cake availability
+- Search cakes by name
+- Filter cakes by category
+- Filter cakes by price range
+- Pagination
+- Sorting
+- Stock management
 
-**### Additional Features**
+### Additional Features
 
-\- Request validation
-\- Centralized error handling
-\- MongoDB integration
-\- Swagger/OpenAPI
-\- Interactive UI
-\- Health check
-\- CORS
-\- Helmet
-\- Morgan logging
+- Request validation
+- Centralized error handling
+- MongoDB integration
+- Swagger/OpenAPI
+- Interactive UI
+- Health check
+- CORS
+- Helmet
+- Morgan logging
 
-**### Base URL**
+### Base URL
 
-\`\`\`text
-http\://localhost:5001
-\`\`\`
+```text
+http://localhost:5001
+```
 
-**---**
+---
 
-**# 🛒 2. Order Microservice**
+# 🛒 2. Order Microservice
 
-**\*\*Port:\*\*** \`5002\`
+**Port:** `5002`
 
 The Order Service is responsible for customer baskets, checkout, orders, order status management, cancellation, inventory interaction, and order events.
 
 The Basket is implemented inside the Order Service rather than as a separate microservice.
 
-**### Responsibilities**
+### Responsibilities
 
-**#### Basket**
+#### Basket
 
-\- Add cakes to basket
-\- View customer basket
-\- Update basket quantity
-\- Remove basket items
-\- Clear basket
-\- Calculate basket subtotal
-\- Calculate basket total
+- Add cakes to basket
+- View customer basket
+- Update basket quantity
+- Remove basket items
+- Clear basket
+- Calculate basket subtotal
+- Calculate basket total
 
-**#### Checkout**
+#### Checkout
 
-\- Validate basket
-\- Retrieve cake details
-\- Validate availability
-\- Validate stock
-\- Calculate item subtotals
-\- Calculate order total
-\- Reduce cake stock
-\- Create order
-\- Clear basket
-\- Publish order event
+- Validate basket
+- Retrieve cake details
+- Validate availability
+- Validate stock
+- Calculate item subtotals
+- Calculate order total
+- Reduce cake stock
+- Create order
+- Clear basket
+- Publish order event
 
-**#### Orders**
+#### Orders
 
-\- Create orders
-\- Get all orders
-\- Get order by ID
-\- Update order status
-\- Cancel orders
-\- Calculate totals
-\- Validate order data
+- Create orders
+- Get all orders
+- Get order by ID
+- Update order status
+- Cancel orders
+- Calculate totals
+- Validate order data
 
-**#### Catalog Integration**
+#### Catalog Integration
 
 The Order Service communicates with the Catalog Service to:
 
-\`\`\`text
+```text
 Get Cake
    ↓
 Validate Cake
@@ -230,21 +209,21 @@ Check Availability
 Check Stock
    ↓
 Reduce Stock
-\`\`\`
+```
 
 When an order is cancelled:
 
-\`\`\`text
+```text
 Order Cancellation
        ↓
 Restore Stock
        ↓
 Catalog Service
-\`\`\`
+```
 
-**### Order Status Flow**
+### Order Status Flow
 
-\`\`\`text
+```text
 PLACED
    │
    ├──→ CONFIRMED
@@ -259,53 +238,53 @@ PLACED
    │   DELIVERED
    │
    └──→ CANCELLED
-\`\`\`
+```
 
 Invalid status transitions are rejected.
 
-**### Base URL**
+### Base URL
 
-\`\`\`text
-http\://localhost:5002
-\`\`\`
+```text
+http://localhost:5002
+```
 
-**---**
+---
 
-**# 🔔 3. Notification Microservice**
+# 🔔 3. Notification Microservice
 
-**\*\*Port:\*\*** \`5003\`
+**Port:** `5003`
 
 The Notification Service manages customer notifications generated from order-related events.
 
-It uses **\*\*RabbitMQ\*\*** as an asynchronous event consumer.
+It uses **RabbitMQ** as an asynchronous event consumer.
 
-**### Responsibilities**
+### Responsibilities
 
-\- Consume RabbitMQ order events
-\- Create notifications
-\- Store notifications in MongoDB
-\- Get all notifications
-\- Get notification by ID
-\- Get notifications by customer email
-\- Mark notifications as read
-\- Delete notifications
-\- Provide notification APIs
-\- Display notifications through the UI
+- Consume RabbitMQ order events
+- Create notifications
+- Store notifications in MongoDB
+- Get all notifications
+- Get notification by ID
+- Get notifications by customer email
+- Mark notifications as read
+- Delete notifications
+- Provide notification APIs
+- Display notifications through the UI
 
-**### Supported Events**
+### Supported Events
 
-\`\`\`text
+```text
 ORDER_PLACED
 ORDER_CONFIRMED
 ORDER_PREPARING
 ORDER_OUT_FOR_DELIVERY
 ORDER_DELIVERED
 ORDER_CANCELLED
-\`\`\`
+```
 
-**### Notification Flow**
+### Notification Flow
 
-\`\`\`text
+```text
 Order Service
       │
       │ Order Event
@@ -323,43 +302,43 @@ MongoDB
       │
       ▼
 Notification UI
-\`\`\`
+```
 
 The Order Service does not directly create notifications inside the Notification Service.
 
 RabbitMQ provides asynchronous communication between the services.
 
-**### Base URL**
+### Base URL
 
-\`\`\`text
-http\://localhost:5003
-\`\`\`
+```text
+http://localhost:5003
+```
 
-**---**
+---
 
-**# ⭐ 4. Rating Microservice**
+# ⭐ 4. Rating Microservice
 
-**\*\*Port:\*\*** \`5004\`
+**Port:** `5004`
 
 The Rating Service manages customer ratings and reviews for cakes.
 
-**### Responsibilities**
+### Responsibilities
 
-\- Create ratings
-\- Create reviews
-\- Get all ratings
-\- Get rating by ID
-\- Get ratings for a specific cake
-\- Update ratings
-\- Delete ratings
-\- Validate rating and review data
-\- Prevent duplicate ratings from the same customer for the same cake
+- Create ratings
+- Create reviews
+- Get all ratings
+- Get rating by ID
+- Get ratings for a specific cake
+- Update ratings
+- Delete ratings
+- Validate rating and review data
+- Prevent duplicate ratings from the same customer for the same cake
 
-**### Catalog Integration**
+### Catalog Integration
 
 The Rating Service UI communicates with the Catalog Service to load available cakes.
 
-\`\`\`text
+```text
 Rating UI
     │
     ▼
@@ -370,25 +349,25 @@ Available Cakes
     │
     ▼
 Rating UI
-\`\`\`
+```
 
-**### Base URL**
+### Base URL
 
-\`\`\`text
-http\://localhost:5004
-\`\`\`
+```text
+http://localhost:5004
+```
 
-**---**
+---
 
-**# 🚪 5. API Gateway**
+# 🚪 5. API Gateway
 
-**\*\*Port:\*\*** \`5000\`
+**Port:** `5000`
 
-The API Gateway is the **\*\*single entry point for client requests\*\*** in the Cake Delight microservices architecture.
+The API Gateway is the **single entry point for client requests** in the Cake Delight microservices architecture.
 
 Instead of the client communicating directly with every microservice, requests are sent to the API Gateway.
 
-\`\`\`text
+```text
 Client
    │
    ▼
@@ -398,65 +377,65 @@ API Gateway :5000
    ├── Order Service :5002
    ├── Notification Service :5003
    └── Rating Service :5004
-\`\`\`
+```
 
-**### Responsibilities**
+### Responsibilities
 
-\- Centralized API entry point
-\- Request routing
-\- Service abstraction
-\- HTTP proxying
-\- CORS support
-\- JSON request handling
-\- Health check
-\- Error handling
+- Centralized API entry point
+- Request routing
+- Service abstraction
+- HTTP proxying
+- CORS support
+- JSON request handling
+- Health check
+- Error handling
 
 The Gateway decides where a request should go.
 
 The individual microservices continue to handle the actual business logic.
 
-**---**
+---
 
-**# 🔀 API Gateway Routes**
+# 🔀 API Gateway Routes
 
-\| Gateway Route          | Target Service       |
-\| ---------------------- | -------------------- |
-\| \`/api/catalog/\*\`       | Catalog Service      |
-\| \`/api/orders/\*\`        | Order Service        |
-\| \`/api/notifications/\*\` | Notification Service |
-\| \`/api/ratings/\*\`       | Rating Service       |
+| Gateway Route           | Target Service        |
+| ----------------------- | --------------------- |
+| `/api/catalog/*`        | Catalog Service       |
+| `/api/orders/*`         | Order Service         |
+| `/api/notifications/*`  | Notification Service  |
+| `/api/ratings/*`        | Rating Service        |
 
-**### Example**
+### Example
 
 Instead of directly calling:
 
-\`\`\`text
-http\://localhost:5001/api/cakes
-\`\`\`
+```text
+http://localhost:5001/api/cakes
+```
 
 the client can use:
 
-\`\`\`text
-http\://localhost:5000/api/catalog/cakes
-\`\`\`
+```text
+http://localhost:5000/api/catalog/cakes
+```
 
 The Gateway forwards the request to:
 
-\`\`\`text
+```text
 Catalog Service :5001
-\`\`\`
+```
 
-**---**
+---
 
-**# 🐇 RabbitMQ Event Architecture**
+# 🐇 RabbitMQ Event Architecture
 
-RabbitMQ is used as the **\*\*message broker\*\*** for asynchronous communication between the Order and Notification Services.
+RabbitMQ is used as the **message broker** for asynchronous communication between the Order and Notification Services.
 
 The Order Service publishes events.
 
 The Notification Service consumes those events.
 
-\`\`\`text
+```text
                     Order Service
                          │
                          │
@@ -477,13 +456,13 @@ The Notification Service consumes those events.
                          │
                          ▼
                   Customer UI
-\`\`\`
+```
 
-**## Order Completed**
+## Order Completed
 
 After successful checkout/order creation:
 
-\`\`\`text
+```text
 Order Service
       │
       │ ORDER_COMPLETED
@@ -498,13 +477,13 @@ Notification MongoDB
       │
       ▼
 Customer Notification
-\`\`\`
+```
 
-**## Order Status Updated**
+## Order Status Updated
 
 When an order status changes:
 
-\`\`\`text
+```text
 Order Service
       │
       │ ORDER_STATUS_UPDATED
@@ -519,15 +498,15 @@ Notification MongoDB
       │
       ▼
 Customer Notification
-\`\`\`
+```
 
-**---**
+---
 
-**# 🔄 Complete Customer Workflow**
+# 🔄 Complete Customer Workflow
 
 The complete Cake Delight customer workflow is:
 
-\`\`\`text
+```text
                     Customer
                        │
                        ▼
@@ -586,13 +565,13 @@ The complete Cake Delight customer workflow is:
                        │
                        ▼
               Customer Notification
-\`\`\`
+```
 
-**---**
+---
 
-**# 🛒 Detailed Checkout Flow**
+# 🛒 Detailed Checkout Flow
 
-\`\`\`text
+```text
 Customer
    │
    ▼
@@ -638,15 +617,15 @@ Clear Basket
 RabbitMQ
    │
    └── ORDER_COMPLETED
-\`\`\`
+```
 
-**---**
+---
 
-**# ❌ Order Cancellation Flow**
+# ❌ Order Cancellation Flow
 
 When an order is cancelled:
 
-\`\`\`text
+```text
 Customer/Admin
       │
       ▼
@@ -672,15 +651,15 @@ RabbitMQ
       │
       ▼
 Notification Service
-\`\`\`
+```
 
-**---**
+---
 
-**# ⭐ Rating Workflow**
+# ⭐ Rating Workflow
 
 The Rating Service provides customer rating and review functionality.
 
-\`\`\`text
+```text
 Customer
    │
    ▼
@@ -704,58 +683,58 @@ Rating Response
    │
    ▼
 Cake UI
-\`\`\`
+```
 
 The Rating UI can communicate with the Catalog Service to retrieve available cakes.
 
-**---**
+---
 
-**# 🛠️ Technology Stack**
+# 🛠️ Technology Stack
 
-\| Technology                 | Purpose                        |
-\| -------------------------- | ------------------------------ |
-\| Node.js                    | JavaScript runtime             |
-\| Express.js                 | REST API framework             |
-\| MongoDB                    | Database                       |
-\| Mongoose                   | MongoDB ODM                    |
-\| Joi                        | Request validation             |
-\| Swagger / OpenAPI          | API documentation              |
-\| Swagger UI Express         | Interactive API testing        |
-\| RabbitMQ                   | Message broker                 |
-\| amqplib                    | RabbitMQ integration           |
-\| Axios / HTTP communication | Inter-service communication    |
-\| HTML                       | Frontend structure             |
-\| CSS                        | Frontend styling               |
-\| JavaScript                 | Frontend API communication     |
-\| CORS                       | Cross-origin requests          |
-\| Helmet                     | Security headers               |
-\| Morgan                     | HTTP request logging           |
-\| dotenv                     | Environment configuration      |
-\| Nodemon                    | Development server             |
-\| Docker                     | Containerization               |
-\| Docker Compose             | Multi-service local deployment |
-\| Git                        | Version control                |
-\| GitHub                     | Source code management         |
+| Technology                  | Purpose                         |
+| --------------------------- | ------------------------------- |
+| Node.js                     | JavaScript runtime              |
+| Express.js                  | REST API framework              |
+| MongoDB                     | Database                        |
+| Mongoose                    | MongoDB ODM                     |
+| Joi                         | Request validation              |
+| Swagger / OpenAPI           | API documentation               |
+| Swagger UI Express          | Interactive API testing         |
+| RabbitMQ                    | Message broker                  |
+| amqplib                     | RabbitMQ integration            |
+| Axios / HTTP communication  | Inter-service communication     |
+| HTML                        | Frontend structure              |
+| CSS                         | Frontend styling                |
+| JavaScript                  | Frontend API communication      |
+| CORS                        | Cross-origin requests           |
+| Helmet                      | Security headers                |
+| Morgan                      | HTTP request logging            |
+| dotenv                      | Environment configuration       |
+| Nodemon                     | Development server              |
+| Docker                      | Containerization                |
+| Docker Compose              | Multi-service local deployment  |
+| Git                         | Version control                 |
+| GitHub                      | Source code management          |
 
-**---**
+---
 
-**# 🔌 Service Ports**
+# 🔌 Service Ports
 
-\| Component              |    Port |
-\| ---------------------- | ------: |
-\| API Gateway            |  \`5000\` |
-\| Catalog Service        |  \`5001\` |
-\| Order Service          |  \`5002\` |
-\| Notification Service   |  \`5003\` |
-\| Rating Service         |  \`5004\` |
-\| RabbitMQ               |  \`5672\` |
-\| RabbitMQ Management UI | \`15672\` |
+| Component               |    Port |
+| ----------------------- | ------: |
+| API Gateway             |  `5000` |
+| Catalog Service         |  `5001` |
+| Order Service           |  `5002` |
+| Notification Service    |  `5003` |
+| Rating Service          |  `5004` |
+| RabbitMQ                |  `5672` |
+| RabbitMQ Management UI  | `15672` |
 
-**---**
+---
 
-**# 📁 Project Structure**
+# 📁 Project Structure
 
-\`\`\`text
+```text
 Cake_Delight_App/
 │
 ├── api-gateway/
@@ -777,17 +756,17 @@ Cake_Delight_App/
 ├── Changes_needed.txt
 │
 └── README.md
-\`\`\`
+```
 
 Each microservice is an independent Node.js application.
 
-**---**
+---
 
-**# 🗄️ Database Architecture**
+# 🗄️ Database Architecture
 
 Each business microservice maintains its own MongoDB database.
 
-\`\`\`text
+```text
 MongoDB
 │
 ├── catalog_db
@@ -797,57 +776,57 @@ MongoDB
 ├── notification_db
 │
 └── rating_db
-\`\`\`
+```
 
-**### Catalog Database**
-
-Responsible for:
-
-\- Cakes
-\- Prices
-\- Categories
-\- Stock
-\- Availability
-
-**### Order Database**
+### Catalog Database
 
 Responsible for:
 
-\- Baskets
-\- Orders
-\- Order items
-\- Order totals
-\- Order status
+- Cakes
+- Prices
+- Categories
+- Stock
+- Availability
 
-**### Notification Database**
-
-Responsible for:
-
-\- Notifications
-\- Customer notification state
-\- Read/unread status
-
-**### Rating Database**
+### Order Database
 
 Responsible for:
 
-\- Ratings
-\- Reviews
-\- Customer rating information
+- Baskets
+- Orders
+- Order items
+- Order totals
+- Order status
 
-**---**
+### Notification Database
 
-**# 🔗 Service Communication**
+Responsible for:
+
+- Notifications
+- Customer notification state
+- Read/unread status
+
+### Rating Database
+
+Responsible for:
+
+- Ratings
+- Reviews
+- Customer rating information
+
+---
+
+# 🔗 Service Communication
 
 Cake Delight uses two major communication styles.
 
-**## 1. Synchronous REST Communication**
+## 1. Synchronous REST Communication
 
 Used when one service needs an immediate response.
 
 Example:
 
-\`\`\`text
+```text
 Order Service
       │
       │ HTTP
@@ -856,17 +835,17 @@ Catalog Service
       │
       ▼
 Cake / Stock Information
-\`\`\`
+```
 
 The Order Service uses Catalog Service information to validate cakes and stock during basket and checkout operations.
 
-**---**
+---
 
-**## 2. Asynchronous Event Communication**
+## 2. Asynchronous Event Communication
 
 Used for order-related notifications.
 
-\`\`\`text
+```text
 Order Service
       │
       ▼
@@ -874,334 +853,334 @@ RabbitMQ
       │
       ▼
 Notification Service
-\`\`\`
+```
 
 This prevents the Order Service from directly depending on the Notification Service for notification creation.
 
-**---**
+---
 
-**# 🌐 API Gateway Examples**
+# 🌐 API Gateway Examples
 
 Once the API Gateway is running, the client can use:
 
-**## Catalog**
+## Catalog
 
-\`\`\`http
-GET http\://localhost:5000/api/catalog/cakes
-\`\`\`
+```http
+GET http://localhost:5000/api/catalog/cakes
+```
 
-\`\`\`http
-GET http\://localhost:5000/api/catalog/cakes/\:id
-\`\`\`
+```http
+GET http://localhost:5000/api/catalog/cakes/:id
+```
 
-**---**
+---
 
-**## Orders**
+## Orders
 
-\`\`\`http
-GET http\://localhost:5000/api/orders
-\`\`\`
+```http
+GET http://localhost:5000/api/orders
+```
 
-\`\`\`http
-GET http\://localhost:5000/api/orders/\:id
-\`\`\`
+```http
+GET http://localhost:5000/api/orders/:id
+```
 
-\`\`\`http
-POST http\://localhost:5000/api/orders/checkout/\:customerEmail
-\`\`\`
+```http
+POST http://localhost:5000/api/orders/checkout/:customerEmail
+```
 
-**---**
+---
 
-**## Ratings**
+## Ratings
 
-\`\`\`http
-GET http\://localhost:5000/api/ratings
-\`\`\`
+```http
+GET http://localhost:5000/api/ratings
+```
 
-\`\`\`http
-GET http\://localhost:5000/api/ratings/\:id
-\`\`\`
+```http
+GET http://localhost:5000/api/ratings/:id
+```
 
-**---**
+---
 
-**## Notifications**
+## Notifications
 
-\`\`\`http
-GET http\://localhost:5000/api/notifications
-\`\`\`
+```http
+GET http://localhost:5000/api/notifications
+```
 
-\`\`\`http
-GET http\://localhost:5000/api/notifications/\:id
-\`\`\`
+```http
+GET http://localhost:5000/api/notifications/:id
+```
 
-**---**
+---
 
-**# ❤️ API Gateway Health Check**
+# ❤️ API Gateway Health Check
 
-\`\`\`http
-GET http\://localhost:5000/health
-\`\`\`
+```http
+GET http://localhost:5000/health
+```
 
 Example response:
 
-\`\`\`json
+```json
 {
-  "success": true,
-  "message": "API Gateway is running"
+  "success": true,
+  "message": "API Gateway is running"
 }
-\`\`\`
+```
 
-**---**
+---
 
-**# 📖 Swagger Documentation**
+# 📖 Swagger Documentation
 
 Each service provides interactive API documentation.
 
-**### Catalog**
+### Catalog
 
-\`\`\`text
-http\://localhost:5001/api-docs
-\`\`\`
+```text
+http://localhost:5001/api-docs
+```
 
-**### Order**
+### Order
 
-\`\`\`text
-http\://localhost:5002/api-docs
-\`\`\`
+```text
+http://localhost:5002/api-docs
+```
 
-**### Notification**
+### Notification
 
-\`\`\`text
-http\://localhost:5003/api-docs
-\`\`\`
+```text
+http://localhost:5003/api-docs
+```
 
-**### Rating**
+### Rating
 
-\`\`\`text
-http\://localhost:5004/api-docs
-\`\`\`
+```text
+http://localhost:5004/api-docs
+```
 
 Swagger allows developers to:
 
-\- View API endpoints
-\- View request parameters
-\- View request bodies
-\- View responses
-\- Test APIs interactively
+- View API endpoints
+- View request parameters
+- View request bodies
+- View responses
+- Test APIs interactively
 
-**---**
+---
 
-**# 🖥️ Service UIs**
+# 🖥️ Service UIs
 
 Each major service provides a web-based UI.
 
-**### Catalog UI**
+### Catalog UI
 
-\`\`\`text
-http\://localhost:5001
-\`\`\`
+```text
+http://localhost:5001
+```
 
-**### Order UI**
+### Order UI
 
-\`\`\`text
-http\://localhost:5002
-\`\`\`
+```text
+http://localhost:5002
+```
 
-**### Notification UI**
+### Notification UI
 
-\`\`\`text
-http\://localhost:5003
-\`\`\`
+```text
+http://localhost:5003
+```
 
-**### Rating UI**
+### Rating UI
 
-\`\`\`text
-http\://localhost:5004
-\`\`\`
+```text
+http://localhost:5004
+```
 
 The API Gateway provides the centralized backend entry point for client API requests.
 
-**---**
+---
 
-**# ⚙️ Environment Configuration**
+# ⚙️ Environment Configuration
 
 Each microservice uses environment variables for configuration.
 
 Example Order Service:
 
-\`\`\`env
+```env
 PORT=5002
 
 MONGO_URI=mongodb://localhost:27017/order_db
 
-CATALOG_SERVICE_URL=http\://localhost:5001
+CATALOG_SERVICE_URL=http://localhost:5001
 
-RABBITMQ_URL=amqp\://localhost:5672
+RABBITMQ_URL=amqp://localhost:5672
 
 EVENT_EXCHANGE=cake_delight_events
-\`\`\`
+```
 
 API Gateway:
 
-\`\`\`env
+```env
 PORT=5000
 
-CATALOG_SERVICE_URL=http\://localhost:5001/api/catalog
-ORDER_SERVICE_URL=http\://localhost:5002/api/orders
-NOTIFICATION_SERVICE_URL=http\://localhost:5003/api/notifications
-RATING_SERVICE_URL=http\://localhost:5004/api/ratings
-\`\`\`
+CATALOG_SERVICE_URL=http://localhost:5001/api/catalog
+ORDER_SERVICE_URL=http://localhost:5002/api/orders
+NOTIFICATION_SERVICE_URL=http://localhost:5003/api/notifications
+RATING_SERVICE_URL=http://localhost:5004/api/ratings
+```
 
 Environment files containing secrets or local configuration should not be committed to GitHub.
 
-Use \`.env.example\` files as configuration templates.
+Use `.env.example` files as configuration templates.
 
-**---**
+---
 
-**# ▶️ Running the Application Locally**
+# ▶️ Running the Application Locally
 
-**## Prerequisites**
+## Prerequisites
 
 Install:
 
-\- Node.js
-\- npm
-\- MongoDB
-\- RabbitMQ
-\- Git
+- Node.js
+- npm
+- MongoDB
+- RabbitMQ
+- Git
 
 Optional development tools:
 
-\- VS Code
-\- Postman
-\- Docker
-\- Docker Compose
+- VS Code
+- Postman
+- Docker
+- Docker Compose
 
-**---**
+---
 
-**## 1. Clone the Repository**
+## 1. Clone the Repository
 
-\`\`\`bash
-git clone \<your-repository-url>
-\`\`\`
+```bash
+git clone <your-repository-url>
+```
 
 Navigate to the project:
 
-\`\`\`bash
+```bash
 cd Cake_Delight_App
-\`\`\`
+```
 
-**---**
+---
 
-**## 2. Install Dependencies**
+## 2. Install Dependencies
 
 Install dependencies inside each service:
 
-\`\`\`bash
+```bash
 cd catalog-service
 npm install
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 cd ../order-service
 npm install
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 cd ../notification-service
 npm install
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 cd ../rating-service
 npm install
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 cd ../api-gateway
 npm install
-\`\`\`
+```
 
-**---**
+---
 
-**# ▶️ Start the Services**
+# ▶️ Start the Services
 
 Each service can be started independently.
 
-**### Catalog**
+### Catalog
 
-\`\`\`bash
+```bash
 cd catalog-service
 npm run dev
-\`\`\`
+```
 
 Runs on:
 
-\`\`\`text
-http\://localhost:5001
-\`\`\`
+```text
+http://localhost:5001
+```
 
-**### Order**
+### Order
 
-\`\`\`bash
+```bash
 cd order-service
 npm run dev
-\`\`\`
+```
 
 Runs on:
 
-\`\`\`text
-http\://localhost:5002
-\`\`\`
+```text
+http://localhost:5002
+```
 
-**### Notification**
+### Notification
 
-\`\`\`bash
+```bash
 cd notification-service
 npm run dev
-\`\`\`
+```
 
 Runs on:
 
-\`\`\`text
-http\://localhost:5003
-\`\`\`
+```text
+http://localhost:5003
+```
 
-**### Rating**
+### Rating
 
-\`\`\`bash
+```bash
 cd rating-service
 npm run dev
-\`\`\`
+```
 
 Runs on:
 
-\`\`\`text
-http\://localhost:5004
-\`\`\`
+```text
+http://localhost:5004
+```
 
-**### API Gateway**
+### API Gateway
 
-\`\`\`bash
+```bash
 cd api-gateway
 npm run dev
-\`\`\`
+```
 
 Runs on:
 
-\`\`\`text
-http\://localhost:5000
-\`\`\`
+```text
+http://localhost:5000
+```
 
-**---**
+---
 
-**# 🐳 Running with Docker Compose**
+# 🐳 Running with Docker Compose
 
 The project includes a Docker Compose configuration for running the Cake Delight services together.
 
 The intended architecture is:
 
-\`\`\`text
+```text
 Docker Compose
       │
       ├── API Gateway
@@ -1211,41 +1190,41 @@ Docker Compose
       ├── Rating Service
       ├── RabbitMQ
       └── MongoDB
-\`\`\`
+```
 
 Build and start the application:
 
-\`\`\`bash
+```bash
 docker compose up --build
-\`\`\`
+```
 
 Run in detached mode:
 
-\`\`\`bash
+```bash
 docker compose up -d --build
-\`\`\`
+```
 
 View running containers:
 
-\`\`\`bash
+```bash
 docker compose ps
-\`\`\`
+```
 
 View logs:
 
-\`\`\`bash
+```bash
 docker compose logs
-\`\`\`
+```
 
 Stop the application:
 
-\`\`\`bash
+```bash
 docker compose down
-\`\`\`
+```
 
-**---**
+---
 
-\*\*# ☸️ Kubernetes Deployment
+# ☸️ Kubernetes Deployment
 
 Cake Delight is also deployed and tested on Kubernetes using the Docker Desktop Kubernetes cluster.
 
@@ -1478,47 +1457,21 @@ All application pods were verified in the `Running` state during end-to-end test
 
 The Kubernetes deployment follows this structure:
 
-```text
-                         Kubernetes Cluster
-                                │
-                                ▼
-                     ┌─────────────────────┐
-                     │   cake-delight      │
-                     │     namespace       │
-                     └──────────┬──────────┘
-                                │
-                         ┌──────▼──────┐
-                         │ API Gateway │
-                         │    :5000    │
-                         │  NodePort   │
-                         │    30500    │
-                         └──────┬──────┘
-                                │
-              ┌─────────────────┼──────────────────┐
-              │                 │                  │
-              ▼                 ▼                  ▼
-       ┌────────────┐    ┌────────────┐    ┌────────────┐
-       │   Catalog  │    │   Order    │    │   Rating   │
-       │   :5001    │    │   :5002    │    │   :5004    │
-       └─────┬──────┘    └─────┬──────┘    └─────┬──────┘
-             │                 │                  │
-             ▼                 │                  ▼
-       Catalog MongoDB         │            Rating MongoDB
-                               │
-                               ▼
-                         ┌───────────┐
-                         │ RabbitMQ  │
-                         │   :5672   │
-                         └─────┬─────┘
-                               │
-                               ▼
-                     ┌─────────────────┐
-                     │  Notification   │
-                     │      :5003      │
-                     └────────┬────────┘
-                              │
-                              ▼
-                       Notification DB
+```mermaid
+flowchart TD
+    K[Kubernetes Cluster] --> NS[cake-delight namespace]
+    NS --> G[API Gateway<br/>:5000<br/>NodePort 30500]
+
+    G --> CAT[Catalog<br/>:5001]
+    G --> ORD[Order<br/>:5002]
+    G --> RAT[Rating<br/>:5004]
+
+    CAT --> CATDB[(Catalog MongoDB)]
+    RAT --> RATDB[(Rating MongoDB)]
+
+    ORD --> MQ[RabbitMQ<br/>:5672]
+    MQ --> NOTIF[Notification<br/>:5003]
+    NOTIF --> NDB[(Notification DB)]
 ```
 
 ---
@@ -1661,20 +1614,20 @@ This was the verified method used for the final end-to-end UI testing.
 
 ---
 
-# 🧪 Testing\*\*
+# 🧪 Testing
 
 The services can be tested using:
 
-\- Swagger UI
-\- Postman
-\- Service UIs
-\- API Gateway
+- Swagger UI
+- Postman
+- Service UIs
+- API Gateway
 
-**## Catalog Testing**
+## Catalog Testing
 
 Test:
 
-\`\`\`text
+```text
 Create Cake
    ↓
 Get Cake
@@ -1688,13 +1641,13 @@ Filter Cake
 Update Stock
    ↓
 Delete Cake
-\`\`\`
+```
 
-**---**
+---
 
-**## Basket Testing**
+## Basket Testing
 
-\`\`\`text
+```text
 Browse Cake
     ↓
 Add Cake
@@ -1706,13 +1659,13 @@ Update Quantity
 Remove Item
     ↓
 Clear Basket
-\`\`\`
+```
 
-**---**
+---
 
-**## Checkout Testing**
+## Checkout Testing
 
-\`\`\`text
+```text
 Available Cake
       +
 Sufficient Stock
@@ -1726,13 +1679,13 @@ Stock Reduced
 Basket Cleared
       +
 ORDER_COMPLETED
-\`\`\`
+```
 
-**---**
+---
 
-**## Insufficient Stock**
+## Insufficient Stock
 
-\`\`\`text
+```text
 Requested Quantity
         >
 Available Stock
@@ -1740,13 +1693,13 @@ Available Stock
 Checkout Rejected
         +
 Stock Unchanged
-\`\`\`
+```
 
-**---**
+---
 
-**## Order Cancellation**
+## Order Cancellation
 
-\`\`\`text
+```text
 Order Created
       ↓
 Stock Reduced
@@ -1756,13 +1709,13 @@ Order Cancelled
 Stock Restored
       ↓
 Notification Event
-\`\`\`
+```
 
-**---**
+---
 
-**## Notification Testing**
+## Notification Testing
 
-\`\`\`text
+```text
 Order Event
     ↓
 RabbitMQ
@@ -1774,13 +1727,13 @@ Notification Created
 MongoDB
     ↓
 Notification UI
-\`\`\`
+```
 
-**---**
+---
 
-**## Rating Testing**
+## Rating Testing
 
-\`\`\`text
+```text
 Select Cake
     ↓
 Submit Rating
@@ -1792,66 +1745,66 @@ Check Duplicate
 Save Rating
     ↓
 View Rating
-\`\`\`
+```
 
-**---**
+---
 
-**# 🔐 Error Handling**
+# 🔐 Error Handling
 
 The services implement centralized error handling and request validation.
 
 Examples of errors handled include:
 
-\- Invalid request data
-\- Invalid IDs
-\- Missing required fields
-\- Invalid customer email
-\- Cake not found
-\- Cake unavailable
-\- Insufficient stock
-\- Invalid basket quantity
-\- Invalid order status transition
-\- Invalid cancellation
-\- Duplicate ratings
-\- Database errors
-\- Catalog Service communication errors
-\- RabbitMQ communication errors
+- Invalid request data
+- Invalid IDs
+- Missing required fields
+- Invalid customer email
+- Cake not found
+- Cake unavailable
+- Insufficient stock
+- Invalid basket quantity
+- Invalid order status transition
+- Invalid cancellation
+- Duplicate ratings
+- Database errors
+- Catalog Service communication errors
+- RabbitMQ communication errors
 
-**---**
+---
 
-**# 🧱 Microservice Design Principles**
+# 🧱 Microservice Design Principles
 
 Cake Delight follows several important microservice principles.
 
-**### Independent Services**
+### Independent Services
 
 Each service has its own responsibility.
 
-\`\`\`text
+```text
 Catalog       → Cakes & Inventory
 Order         → Basket & Orders
 Notification  → Notifications
 Rating        → Ratings & Reviews
 Gateway       → Request Routing
-\`\`\`
+```
 
-**### Database Ownership**
+### Database Ownership
 
 Each business service manages its own database.
 
-**### Loose Coupling**
+### Loose Coupling
 
 Services communicate through defined APIs and events.
 
-**### Event-Driven Communication**
+### Event-Driven Communication
 
 RabbitMQ is used for asynchronous order-related events.
 
-**### Layered Architecture**
+### Layered Architecture
 
 The backend services use a layered structure:
 
-\`\`\`text
+```text
 Routes
    ↓
 Controllers
@@ -1861,127 +1814,101 @@ Services
 Models
    ↓
 Database
-\`\`\`
+```
 
-**---**
+---
 
-**# 🔄 Complete System Architecture**
+# 🔄 Complete System Architecture
 
 The final logical architecture can be summarized as:
 
-\`\`\`text
-                              CUSTOMER
-                                 │
-                                 ▼
-                            CAKE UI
-                                 │
-                                 ▼
-                         ┌───────────────┐
-                         │ API GATEWAY   │
-                         │     :5000     │
-                         └───────┬───────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              │                  │                  │
-              ▼                  ▼                  ▼
-       ┌────────────┐     ┌────────────┐     ┌────────────┐
-       │  CATALOG   │     │   ORDER    │     │   RATING   │
-       │   :5001    │     │   :5002    │     │   :5004    │
-       └─────┬──────┘     └─────┬──────┘     └─────┬──────┘
-             │                  │                  │
-             ▼                  │                  ▼
-        Catalog DB              │             Rating DB
-                                │
-                                │
-                         ORDER EVENTS
-                                │
-                                ▼
-                         ┌────────────┐
-                         │  RabbitMQ  │
-                         └──────┬─────┘
-                                │
-                                ▼
-                       ┌────────────────┐
-                       │ NOTIFICATION   │
-                       │     :5003      │
-                       └───────┬────────┘
-                               │
-                               ▼
-                         Notification DB
-                               │
-                               ▼
-                         🔔 CUSTOMER UI
-\`\`\`
+```mermaid
+flowchart TD
+    CUSTOMER[CUSTOMER] --> UI[CAKE UI]
+    UI --> G[API GATEWAY<br/>:5000]
 
-**---**
+    G --> CAT[CATALOG<br/>:5001]
+    G --> ORD[ORDER<br/>:5002]
+    G --> RAT[RATING<br/>:5004]
 
-**# 📦 Repository Components**
+    CAT --> CATDB[(Catalog DB)]
+    ORD -->|ORDER EVENTS| MQ[RabbitMQ]
+    RAT --> RATDB[(Rating DB)]
 
-\| Component              | Responsibility            |  Port |
-\| ---------------------- | ------------------------- | ----: |
-\| \`catalog-service\`      | Cakes & inventory         |  5001 |
-\| \`order-service\`        | Basket, checkout & orders |  5002 |
-\| \`notification-service\` | Order notifications       |  5003 |
-\| \`rating-service\`       | Ratings & reviews         |  5004 |
-\| \`api-gateway\`          | Central request routing   |  5000 |
-\| RabbitMQ               | Asynchronous messaging    |  5672 |
-\| MongoDB                | Persistent data storage   | 27017 |
+    MQ --> NOTIF[NOTIFICATION<br/>:5003]
+    NOTIF --> NDB[(Notification DB)]
+    NDB --> CUI[🔔 CUSTOMER UI]
+```
 
-**---**
+---
 
-**# 🚀 Future Enhancements**
+# 📦 Repository Components
+
+| Component               | Responsibility             |  Port |
+| ----------------------- | -------------------------- | ----: |
+| `catalog-service`       | Cakes & inventory          |  5001 |
+| `order-service`         | Basket, checkout & orders  |  5002 |
+| `notification-service`  | Order notifications        |  5003 |
+| `rating-service`        | Ratings & reviews          |  5004 |
+| `api-gateway`           | Central request routing    |  5000 |
+| RabbitMQ                | Asynchronous messaging     |  5672 |
+| MongoDB                 | Persistent data storage    | 27017 |
+
+---
+
+# 🚀 Future Enhancements
 
 Possible future improvements include:
 
-\- User authentication
-\- JWT authorization
-\- Customer accounts
-\- Online payment integration
-\- Email order confirmation
-\- Customer order history
-\- Service discovery
-\- Kubernetes deployment
-\- Centralized logging
-\- Distributed tracing
-\- Production-grade observability
-\- Outbox pattern
-\- Retry mechanisms
-\- Dead-letter queues
-\- Improved API Gateway security
-\- Rate limiting
-\- Production monitoring
+- User authentication
+- JWT authorization
+- Customer accounts
+- Online payment integration
+- Email order confirmation
+- Customer order history
+- Service discovery
+- Kubernetes deployment
+- Centralized logging
+- Distributed tracing
+- Production-grade observability
+- Outbox pattern
+- Retry mechanisms
+- Dead-letter queues
+- Improved API Gateway security
+- Rate limiting
+- Production monitoring
 
-**---**
+---
 
-**# 🎓 Learning Objectives**
+# 🎓 Learning Objectives
 
 This project demonstrates practical implementation of:
 
-\- Node.js
-\- Express.js
-\- REST APIs
-\- Microservices architecture
-\- MongoDB
-\- Mongoose
-\- Joi validation
-\- Swagger/OpenAPI
-\- Inter-service communication
-\- RabbitMQ
-\- Event-driven architecture
-\- API Gateway
-\- Docker
-\- Docker Compose
-\- Git
-\- GitHub
-\- Frontend API integration
-\- Error handling
-\- Service-level documentation
+- Node.js
+- Express.js
+- REST APIs
+- Microservices architecture
+- MongoDB
+- Mongoose
+- Joi validation
+- Swagger/OpenAPI
+- Inter-service communication
+- RabbitMQ
+- Event-driven architecture
+- API Gateway
+- Docker
+- Docker Compose
+- Git
+- GitHub
+- Frontend API integration
+- Error handling
+- Service-level documentation
 
 The project is designed to provide practical experience with the development and integration of cloud-native microservices.
 
-**---**
+---
 
-\*\*# 🐳 Docker Images
+# 🐳 Docker Images
 
 Each application microservice has its own Docker image.
 
@@ -2005,9 +1932,9 @@ The Kubernetes cluster used for this project runs with the containerd runtime pr
 
 ---
 
-# 📄 Project Status\*\*
+# 📄 Project Status
 
-\`\`\`text
+```text
 Catalog Service             ✅ Completed
 Order Service               ✅ Completed
 Basket                      ✅ Completed
@@ -2020,13 +1947,13 @@ Rating Service              ✅ Completed
 API Gateway                 ✅ Completed
 Docker Compose              ✅ Completed
 Architecture Documentation  ✅ Completed
-\`\`\`
+```
 
-**---**
+---
 
-**# 👨‍💻 Project**
+# 👨‍💻 Project
 
-**\*\*Cake Delight — Microservices Application\*\***
+**Cake Delight — Microservices Application**
 
 Built as a cloud-native microservices project using Node.js, Express.js, MongoDB, RabbitMQ, Docker, and related technologies.
 
